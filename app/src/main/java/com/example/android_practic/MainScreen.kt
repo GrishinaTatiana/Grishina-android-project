@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -36,8 +37,8 @@ import kotlin.getValue
 interface TopLevelRoute: Route {
     val icon: ImageVector
 }
-data object Players: TopLevelRoute {
-    override val icon = Icons.Default.Face
+data object Info: TopLevelRoute {
+    override val icon = Icons.Default.Info
 }
 
 data object Book: TopLevelRoute {
@@ -53,7 +54,7 @@ fun MainScreen() {
 
     Scaffold(bottomBar = {
         NavigationBar {
-            listOf(Players, Book).forEach { route ->
+            listOf(Info, Book).forEach { route ->
                 NavigationBarItem(
                     icon = { Icon(route.icon, null) },
                     selected = topLevelBackStack.topLevelKey == route,
@@ -74,8 +75,8 @@ fun MainScreen() {
                 rememberViewModelStoreNavEntryDecorator()
             ),
             entryProvider = entryProvider {
-                entry<Players> {
-                    ContentBlue("Players")
+                entry<Info> {
+                    PlaceholderScreen("Скоро здесь будет дополнительная информация")
                 }
                 entry<Book> {
                     BookListScreen(topLevelBackStack)
@@ -91,23 +92,15 @@ fun MainScreen() {
 }
 
 @Composable
-fun ContentBlue(text: String) {
-    Text(
-        text = text,
+fun PlaceholderScreen(text: String) {
+    androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Blue)
-    )
-}
-
-@Composable
-fun ContentGreen(text: String, content: @Composable () -> Unit) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Green)
+            .background(Color.White),
+        contentAlignment = androidx.compose.ui.Alignment.Center
     ) {
-        Text(text)
-        content()
+        Text(text = text, color = Color.Black)
     }
 }
+
+

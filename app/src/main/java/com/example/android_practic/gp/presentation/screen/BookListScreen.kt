@@ -21,15 +21,51 @@ import com.example.android_practic.navigation.Route
 import com.example.android_practic.navigation.TopLevelBackStack
 import com.example.android_practic.gp.presentation.MockData
 import com.example.android_practic.gp.presentation.model.BookUiModel
+import com.example.android_practic.gp.presentation.viewModel.BookListViewModel
+import com.example.android_practic.uikit.FullscreenError
+import com.example.android_practic.uikit.FullscreenLoading
+import com.example.android_practic.gp.presentation.model.BookListViewState
+import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 
 @Composable
 fun BookListScreen(topLevelBackStack: TopLevelBackStack<Route>) {
-    val book = remember { MockData.getBook() }
+    val viewModel = koinViewModel<BookListViewModel>()
+    val state by viewModel.viewState.collectAsStateWithLifecycle()
 
-    LazyColumn {
-        book.forEach { book ->
-            item(key = book.index) {
-                BookListItem(book) { topLevelBackStack.add(BookDetails(it)) }
+    BookListScreenContent(
+        state.state,
+        viewModel::onBookClick,
+        viewModel::onRetryClick,
+    )
+}
+
+@Composable
+private fun BookListScreenContent(
+    state: BookListViewState.State,
+    onBookClick: (BookUiModel) -> Unit = {},
+    onRetryClick: () -> Unit = {},
+) {
+    when (state) {
+        BookListViewState.State.Loading -> {
+            FullscreenLoading()
+        }
+
+        is BookListViewState.State.Error -> {
+            FullscreenError(
+                retry = { onRetryClick() },
+                text = state.error
+            )
+        }
+
+        is BookListViewState.State.Success -> {
+            LazyColumn {
+                state.data.forEach { book ->
+                    item {
+                        BookListItem(book) { onBookClick(it) }
+                    }
+                }
             }
         }
     }

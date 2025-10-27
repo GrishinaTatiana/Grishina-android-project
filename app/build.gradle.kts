@@ -68,6 +68,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("io.insert-koin:koin-androidx-compose:3.4.0")
+    implementation("com.github.chuckerteam.chucker:library:3.5.2")
+
+    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.0.0")
 
 
 

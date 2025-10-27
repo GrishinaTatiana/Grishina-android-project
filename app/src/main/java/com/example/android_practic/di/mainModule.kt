@@ -6,9 +6,19 @@ import com.example.android_practic.Book
 import com.example.android_practic.navigation.Route
 import com.example.android_practic.navigation.TopLevelBackStack
 import com.example.android_practic.gp.presentation.viewModel.BookDetailsViewModel
+import com.example.android_practic.gp.presentation.viewModel.BookListViewModel
+
 
 val mainModule = module {
     single { TopLevelBackStack<Route>(Book) }
-
-    viewModel { BookDetailsViewModel(get(), get()) }
 }
+
+//val mainModule = module {
+//    single { TopLevelBackStack<Route>(Book) }
+//
+//    viewModel { BookDetailsViewModel(get(), get()) }
+//
+//    viewModel { (backStack: TopLevelBackStack<Route>) ->
+//        BookListViewModel(backStack)
+//    }
+//}
