@@ -1,10 +1,15 @@
 package com.example.android_practic
 
+
+
 import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import com.example.android_practic.di.mainModule
+import com.example.android_practic.di.networkModule
+import com.example.android_practic.di.BookFeatureModule
+import com.example.android_practic.di.dbModule
 
 class App : Application() {
     override fun onCreate() {
@@ -12,7 +17,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(mainModule)
+            modules(mainModule, networkModule, BookFeatureModule, dbModule)
         }
     }
 }

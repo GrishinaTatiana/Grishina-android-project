@@ -1,9 +1,6 @@
-package com.example.android_practic.gp.presentation.model
+package com.example.android_practic.gp.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class BookUiModel(
+class BookEntity (
     val index: String,
     val Name: String,
     val author: String,

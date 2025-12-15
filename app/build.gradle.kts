@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+
+
 }
 
 android {
@@ -31,13 +34,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(11))
+        }
     }
     buildFeatures {
         compose = true
     }
 }
+
+
 
 dependencies {
 
@@ -58,6 +65,8 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.room.common.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +74,39 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("io.insert-koin:koin-androidx-compose:3.4.0")
+    implementation("com.github.chuckerteam.chucker:library:3.5.2")
+
+    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.0.0")
+
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation ("androidx.room:room-runtime:2.5.0")
+    implementation ("androidx.room:room-ktx:2.5.0")
+    implementation ("androidx.room:room-compiler:2.5.0")
+
+
+
+    // Navigation
+    implementation(libs.bundles.navigation3)
+    implementation(libs.kotlinx.serialization.core)
+
+    // image loading
+    implementation(libs.glide)
+    implementation(libs.glide.compose)
+
+    // DI
+    implementation(libs.bundles.koin)
+
+    // network
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization)
+    implementation(libs.kotlinx.serialization.json)
+
+
+
 }

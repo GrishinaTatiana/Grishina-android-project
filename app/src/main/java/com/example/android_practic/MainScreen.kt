@@ -1,15 +1,14 @@
 package com.example.android_practic
 
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Dvr
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,81 +16,83 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import org.koin.java.KoinJavaComponent.inject
-import kotlin.getValue
 import com.example.android_practic.navigation.Route
 import com.example.android_practic.navigation.TopLevelBackStack
+import com.example.android_practic.gp.presentation.model.BookUiModel
+import com.example.android_practic.gp.presentation.screen.BookDetailsDialog
 import com.example.android_practic.gp.presentation.screen.BookListScreen
-import com.example.android_practic.gp.presentation.MockData
-import com.example.android_practic.gp.presentation.screen.BookDetailsScreen
+import com.example.android_practic.gp.presentation.screen.BookSettingsDialog
+import kotlin.getValue
 
-interface TopLevelRoute : Route {
+interface TopLevelRoute: Route {
     val icon: ImageVector
 }
-
-data object Books : TopLevelRoute {
-    override val icon = Icons.Default.MenuBook
+data object Info: TopLevelRoute {
+    override val icon = Icons.Default.Info
 }
 
-data object Info : TopLevelRoute {
-    override val icon = Icons.AutoMirrored.Filled.Dvr
+data object Book: TopLevelRoute {
+    override val icon = Icons.AutoMirrored.Filled.List
 }
 
-data class BookDetails(val BookId: Int) : Route
+data class BookDetails(val book: BookUiModel) : Route
+
+data object BookSettings : Route
 
 @Composable
 fun MainScreen() {
     val topLevelBackStack by inject<TopLevelBackStack<Route>>(clazz = TopLevelBackStack::class.java)
     val dialogStrategy = remember { DialogSceneStrategy<Route>() }
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier.height(100.dp),
-                containerColor = Color(0xFF87CEFA)
-            ) {
-                listOf(Books, Info).forEach { route ->
-                    NavigationBarItem(
-                        icon = { Icon(route.icon, null) },
-                        label = { Text(route::class.simpleName ?: "") },
-                        selected = topLevelBackStack.topLevelKey == route,
-                        onClick = { topLevelBackStack.addTopLevel(route) }
-                    )
-                }
+    Scaffold(bottomBar = {
+        NavigationBar {
+            listOf(Info, Book).forEach { route ->
+                NavigationBarItem(
+                    icon = { Icon(route.icon, null) },
+                    selected = topLevelBackStack.topLevelKey == route,
+                    onClick = {
+                        topLevelBackStack.addTopLevel(route)
+                    }
+                )
             }
         }
-    ) { padding ->
+    }) { padding ->
         NavDisplay(
             backStack = topLevelBackStack.backStack,
             onBack = { topLevelBackStack.removeLast() },
             modifier = Modifier.padding(padding),
             sceneStrategy = dialogStrategy,
+            entryDecorators = listOf(
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
             entryProvider = entryProvider {
-                entry<Books> {
-                    BookListScreen(topLevelBackStack)
-                }
-
-                entry<BookDetails>(
-                    metadata = DialogSceneStrategy.dialog(DialogProperties())
-                ) { route ->
-                    val Book = MockData.getBook()
-                        .first { it.index == route.BookId }
-                    BookDetailsScreen(
-                        Book = Book,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
                 entry<Info> {
                     PlaceholderScreen("Скоро здесь будет дополнительная информация")
+                }
+                entry<Book> {
+                    BookListScreen(topLevelBackStack)
+                }
+                entry<BookDetails>(
+                    metadata = DialogSceneStrategy.dialog(DialogProperties())
+                ) {
+                    BookDetailsDialog(it.book)
+                }
+                entry<BookSettings> (
+                    metadata = DialogSceneStrategy.dialog(DialogProperties())
+                ) {
+                    BookSettingsDialog()
                 }
             }
         )
@@ -109,3 +110,5 @@ fun PlaceholderScreen(text: String) {
         Text(text = text, color = Color.Black)
     }
 }
+
+
