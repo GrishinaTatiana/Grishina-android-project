@@ -32,6 +32,7 @@ import com.example.android_practic.navigation.TopLevelBackStack
 import com.example.android_practic.gp.presentation.model.BookUiModel
 import com.example.android_practic.gp.presentation.screen.BookDetailsDialog
 import com.example.android_practic.gp.presentation.screen.BookListScreen
+import com.example.android_practic.gp.presentation.screen.BookSettingsDialog
 import kotlin.getValue
 
 interface TopLevelRoute: Route {
@@ -46,6 +47,8 @@ data object Book: TopLevelRoute {
 }
 
 data class BookDetails(val book: BookUiModel) : Route
+
+data object BookSettings : Route
 
 @Composable
 fun MainScreen() {
@@ -85,6 +88,11 @@ fun MainScreen() {
                     metadata = DialogSceneStrategy.dialog(DialogProperties())
                 ) {
                     BookDetailsDialog(it.book)
+                }
+                entry<BookSettings> (
+                    metadata = DialogSceneStrategy.dialog(DialogProperties())
+                ) {
+                    BookSettingsDialog()
                 }
             }
         )

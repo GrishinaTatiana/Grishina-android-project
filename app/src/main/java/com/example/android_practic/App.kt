@@ -9,6 +9,7 @@ import org.koin.core.context.startKoin
 import com.example.android_practic.di.mainModule
 import com.example.android_practic.di.networkModule
 import com.example.android_practic.di.BookFeatureModule
+import com.example.android_practic.di.dbModule
 
 class App : Application() {
     override fun onCreate() {
@@ -16,7 +17,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(mainModule, networkModule, BookFeatureModule)
+            modules(mainModule, networkModule, BookFeatureModule, dbModule)
         }
     }
 }

@@ -4,10 +4,13 @@ package com.example.android_practic.gp.presentation.screen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,6 +31,23 @@ import com.example.android_practic.gp.presentation.model.BookListViewState
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import com.example.android_practic.gp.presentation.model.BookListFilter
+import com.example.android_practic.uikit.Spacing
+
+
+
 
 @Composable
 fun BookListScreen(topLevelBackStack: TopLevelBackStack<Route>) {
@@ -35,35 +55,61 @@ fun BookListScreen(topLevelBackStack: TopLevelBackStack<Route>) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
 
     BookListScreenContent(
-        state.state,
+        state,
         viewModel::onBookClick,
         viewModel::onRetryClick,
+        viewModel::onSettingsClick,
+        viewModel::onFilterChange,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookListScreenContent(
-    state: BookListViewState.State,
+    state: BookListViewState,
     onBookClick: (BookUiModel) -> Unit = {},
     onRetryClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onFilterChange: (BookListFilter) -> Unit = {},
 ) {
-    when (state) {
-        BookListViewState.State.Loading -> {
-            FullscreenLoading()
-        }
 
-        is BookListViewState.State.Error -> {
-            FullscreenError(
-                retry = { onRetryClick() },
-                text = state.error
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    Scaffold (
+        floatingActionButton = {
+            FloatingActionButton(onClick = {onSettingsClick()}) {
+                Icon(Icons.Default.Settings, contentDescription = "Settings")
+            }
+        },
+        topBar = {
+            TopAppBar(
+                { BookListFilter(state, onFilterChange) },
+                scrollBehavior = scrollBehavior
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0.dp),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+    ) {
+        Box(Modifier.padding(it)){
+            when (state.listState) {
+                BookListViewState.State.Loading -> {
+                    FullscreenLoading()
+                }
 
-        is BookListViewState.State.Success -> {
-            LazyColumn {
-                state.data.forEach { book ->
-                    item {
-                        BookListItem(book) { onBookClick(it) }
+                is BookListViewState.State.Error -> {
+                    FullscreenError(
+                        retry = { onRetryClick() },
+                        text = state.listState.error
+                    )
+                }
+
+                is BookListViewState.State.Success -> {
+                    LazyColumn {
+                        state.listState.data.forEach { book ->
+                            item {
+                                BookListItem(book) { onBookClick(it) }
+                            }
+                        }
                     }
                 }
             }
@@ -104,8 +150,28 @@ fun BookListItem(book: BookUiModel, onBookClick: (BookUiModel) -> Unit) {
     }
 }
 
+@Composable
+private fun BookListFilter(
+    state: BookListViewState,
+    onFilterChange: (BookListFilter) -> Unit,
+){
+    FlowRow (
+        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+    ){
+        state.filters.forEach { filter ->
+            FilterChip(
+                selected = filter == state.currentFilter,
+                label = { Text(filter.text)},
+                onClick = {onFilterChange(filter)},
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun BookListPreview() {
-    BookListScreen(TopLevelBackStack<Route>(Book))
+    BookListScreenContent(
+        BookListViewState(BookListViewState.State.Success(MockData.getBook()))
+    )
 }
